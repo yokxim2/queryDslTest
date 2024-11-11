@@ -1,5 +1,6 @@
 package com.sparta.querydsltest;
 
+import static com.sparta.querydsltest.entity.QMember.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 import org.aspectj.lang.annotation.Before;
@@ -23,11 +24,12 @@ public class QuerydslBasicTest {
 	@Autowired
 	EntityManager em;
 
-	JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+	JPAQueryFactory queryFactory;
 
 	@Test
 	@BeforeEach
 	public void before() {
+		queryFactory = new JPAQueryFactory(em);
 		Team teamA = new Team("teamA");
 		Team teamB = new Team("teamB");
 		em.persist(teamA);
@@ -62,12 +64,34 @@ public class QuerydslBasicTest {
 	// PreparedStatement를 사용해서 parameter binding을 자동으로 해준다.
 	@Test
 	public void startQuerydsl() {
-		QMember m = new QMember("m");
-
 		Member findMember = queryFactory
-			.select(m)
-			.from(m)
-			.where(m.username.eq("member1"))
+			.select(member)
+			.from(member)
+			.where(member.username.eq("member1"))
+			.fetchOne();
+
+		assertThat(findMember.getUsername()).isEqualTo("member1");
+	}
+
+	@Test
+	public void search() {
+		Member findMember = queryFactory
+			.selectFrom(member)
+			.where(member.username.eq("member1")
+				.and(member.age.eq(10)))
+			.fetchOne();
+
+		assertThat(findMember.getUsername()).isEqualTo("member1");
+	}
+
+	@Test
+	public void searchAndParam() {
+		Member findMember = queryFactory
+			.selectFrom(member)
+			.where(
+				member.username.eq("member1"),
+				member.age.eq(10)
+			)
 			.fetchOne();
 
 		assertThat(findMember.getUsername()).isEqualTo("member1");
