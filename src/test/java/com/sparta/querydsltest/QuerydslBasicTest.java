@@ -18,6 +18,7 @@ import com.querydsl.core.QueryFactory;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.querydsltest.entity.Member;
@@ -447,6 +448,29 @@ public class QuerydslBasicTest {
 		for (String s : result) {
 			System.out.println("s = " + s);
 		}
+	}
+
+	@Test
+	public void constant() {
+		List<Tuple> result = queryFactory
+			.select(member.username, Expressions.constant("A"))
+			.from(member)
+			.fetch();
+
+		for (Tuple tuple : result) {
+			System.out.println("tuple = " + tuple);
+		}
+	}
+
+	@Test
+	public void concat() {
+		String result = queryFactory
+			.select(member.username.concat("_").concat(member.age.stringValue()))
+			.from(member)
+			.where(member.username.eq("member1"))
+			.fetchOne();
+
+		System.out.println("result : " + result);
 	}
 }
 
