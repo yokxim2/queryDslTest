@@ -93,7 +93,7 @@ public class MemberJpaRepository {
 	public List<MemberTeamDto> search(MemberSearchCondition condition) {
 		return queryFactory
 			.select(Projections.fields(MemberTeamDto.class,
-				member.id,
+				member.id.as("memberId"),
 				member.username,
 				member.age,
 				team.id.as("teamId"),
