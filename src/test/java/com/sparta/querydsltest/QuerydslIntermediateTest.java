@@ -17,6 +17,7 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.querydsltest.dto.MemberDto;
 import com.sparta.querydsltest.dto.UserDto;
@@ -226,5 +227,51 @@ public class QuerydslIntermediateTest {
 		return usernameEq(usernameCond).and(ageEq(ageCond));
 	}
 
+	/**
+	 * 벌크 연산 시 주의점
+	 * update를 수행한 후에는 항상 em.flush(), em.clear()를 습관화하자. JPQL 배치와 마찬가지로,
+	 * 영속성 컨텍스트에 있는 엔티티를 무시하고 실행되기 때문에 배치 쿼리를 실행하고 나면 영속성
+	 * 컨텍스트를 초기화 하는 것이 안전하다.
+	 */
+	@Test
+	public void bulkUpdate() {
 
+		// member1 = 10 -> 비회원
+		// member2 = 20 -> 비회원
+		// member3 = 30 -> 유지
+		// member4 = 40 -> 유지
+
+		long count = queryFactory
+			.update(member)
+			.set(member.username, "비회원")
+			.where(member.age.lt(28))
+			.execute();
+
+		// em.flush();
+		// em.clear();
+
+		List<Member> result = queryFactory
+			.selectFrom(member)
+			.fetch();
+
+		for (Member member1 : result) {
+			System.out.println("member1 = " + member1);
+		}
+	}
+
+	@Test
+	public void bulkAdd() {
+		long count = queryFactory
+			.update(member)
+			.set(member.age, member.age.add(1))
+			.execute();
+	}
+
+	@Test
+	public void bulkDelete() {
+		long count = queryFactory
+			.delete(member)
+			.where(member.age.gt(18))
+			.execute();
+	}
 }
