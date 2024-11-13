@@ -1,6 +1,7 @@
 package com.sparta.querydsltest;
 
 import static com.sparta.querydsltest.entity.QMember.*;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -168,4 +170,31 @@ public class QuerydslIntermediateTest {
 			System.out.println("userDto = " + dto);
 		}
 	}
+
+	@Test
+	public void dynamicQuery_BooleanBuilder() {
+		String usernameParam = "member1";
+		Integer ageParam = null;
+
+		List<Member> result = searchMember1(usernameParam, ageParam);
+		assertThat(result.size()).isEqualTo(1);
+	}
+
+	private List<Member> searchMember1(String usernameCond, Integer ageCond) {
+		BooleanBuilder builder = new BooleanBuilder();
+		if (usernameCond != null) {
+			builder.and(member.username.eq(usernameCond));
+		}
+
+		if (ageCond != null) {
+			builder.and(member.age.eq(ageCond));
+		}
+
+		return queryFactory
+			.selectFrom(member)
+			.where(builder)
+			.fetch();
+	}
+
+	@
 }
