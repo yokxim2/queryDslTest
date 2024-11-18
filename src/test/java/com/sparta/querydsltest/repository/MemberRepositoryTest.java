@@ -8,9 +8,14 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.querydsltest.dto.MemberSearchCondition;
+import com.sparta.querydsltest.dto.MemberTeamDto;
 import com.sparta.querydsltest.entity.Member;
+import com.sparta.querydsltest.entity.Team;
 
 import jakarta.persistence.EntityManager;
 
